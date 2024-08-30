@@ -1,9 +1,9 @@
 const axios = require('axios');
 const fs = require('fs');
+const XLSX = require('xlsx'); // Import the xlsx library
 
-// Replace 'YOUR_API_KEY' with your actual API key
-const API_KEY = 'AIzaSyAlgFyt58-LkEQHN5XvnUCphqSAIWAK2dI';
-const SEARCH_QUERY = 'food blogging';
+const API_KEY = 'AIzaSyCbPFdH3vMMQtdIE0SEFgcBjdoZRkzsMlk';
+const SEARCH_QUERY = 'football';
 const MAX_RESULTS = 50; // Maximum results per request
 const TOTAL_RESULTS = 100; // Total results desired
 
@@ -18,18 +18,18 @@ const getChannelSubscriberCount = async (channelId) => {
     });
     return response.data.items[0]?.statistics?.subscriberCount || 'N/A';
   } catch (error) {
-    console.error(`Error fetching subscriber count for channel ${channelId}:`, error);
+    console.error(`Error fetching subscriber count for channel ${channelId}:`, error.response?.data || error.message);
     return 'N/A';
   }
 };
 
-const getTopFoodBloggingVideos = async () => {
+const getTopSportsVideos = async () => {
   let videos = [];
   let nextPageToken = '';
   
   try {
     while (videos.length < TOTAL_RESULTS) {
-      // Search for videos related to 'food blogging'
+      // Search for videos related to 'sports'
       const searchResponse = await axios.get('https://www.googleapis.com/youtube/v3/search', {
         params: {
           part: 'snippet',
@@ -80,7 +80,7 @@ const getTopFoodBloggingVideos = async () => {
             url: `https://www.youtube.com/watch?v=${video.id}`
           };
         } catch (error) {
-          console.error(`Error processing video ${video.id}:`, error);
+          console.error(`Error processing video ${video.id}:`, error.response?.data || error.message);
           return null; // Return null for errors
         }
       }));
@@ -96,18 +96,18 @@ const getTopFoodBloggingVideos = async () => {
     // Trim the results to the desired number if more than needed
     const topVideos = videos.slice(0, TOTAL_RESULTS);
 
-    // Save the results to a JSON file
-    fs.writeFile('topFoodBloggingVideos.json', JSON.stringify(topVideos, null, 2), (err) => {
-      if (err) {
-        console.error('Error saving data to file:', err);
-      } else {
-        console.log('Data saved to topFoodBloggingVideos.json');
-      }
-    });
+    // Convert the results to an Excel file
+    const ws = XLSX.utils.json_to_sheet(topVideos);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Top Sports Videos');
+
+    // Save the Excel file
+    XLSX.writeFile(wb, 'topfootballVideos.xlsx');
+    console.log('Data saved to topSportsVideos.xlsx');
 
   } catch (error) {
-    console.error('Error fetching YouTube data:', error);
+    console.error('Error fetching YouTube data:', error.response?.data || error.message);
   }
-};
+}
 
-getTopFoodBloggingVideos();
+getTopSportsVideos();
