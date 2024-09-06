@@ -2,7 +2,7 @@ const axios = require('axios');
 const XLSX = require('xlsx'); // Import the xlsx library
 
 const API_KEY = 'AIzaSyCbPFdH3vMMQtdIE0SEFgcBjdoZRkzsMlk';
-const SEARCH_QUERY = 'food blogging';
+const SEARCH_QUERY = 'unboxing';
 const MAX_RESULTS = 50; // Maximum results per request
 const TOTAL_RESULTS = 100; // Total results desired
 
@@ -369,8 +369,8 @@ const getTopFoodBloggingVideos = async () => {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Top Food Blogging Videos');
 
-    XLSX.writeFile(wb, 'topFoodBloggingVideos.xlsx');
-    console.log('Data saved to topFoodBloggingVideos.xlsx');
+    XLSX.writeFile(wb, 'topUnboxingVideos.xlsx');
+    console.log('Data saved ');
 
   } catch (error) {
     console.error('Error fetching YouTube data:', error.response?.data || error.message);
