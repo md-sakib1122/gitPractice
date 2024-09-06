@@ -6,6 +6,7 @@ const SEARCH_QUERY = 'food blogging';
 const MAX_RESULTS = 50; // Maximum results per request
 const TOTAL_RESULTS = 100; // Total results desired
 
+// Mapping of category IDs to category names
 const categoryMapping = {
   '1': 'Film & Animation',
   '2': 'Autos & Vehicles',
@@ -41,7 +42,203 @@ const categoryMapping = {
   '44': 'Trailers'
 };
 
+// Mapping of country codes to full country names
+const countryMapping = {
+  'AF': 'Afghanistan',
+  'AL': 'Albania',
+  'DZ': 'Algeria',
+  'AS': 'American Samoa',
+  'AD': 'Andorra',
+  'AO': 'Angola',
+  'AI': 'Anguilla',
+  'AQ': 'Antarctica',
+  'AR': 'Argentina',
+  'AM': 'Armenia',
+  'AW': 'Aruba',
+  'AU': 'Australia',
+  'AT': 'Austria',
+  'AZ': 'Azerbaijan',
+  'BS': 'Bahamas',
+  'BH': 'Bahrain',
+  'BD': 'Bangladesh',
+  'BB': 'Barbados',
+  'BY': 'Belarus',
+  'BE': 'Belgium',
+  'BZ': 'Belize',
+  'BJ': 'Benin',
+  'BM': 'Bermuda',
+  'BT': 'Bhutan',
+  'BO': 'Bolivia',
+  'BA': 'Bosnia and Herzegovina',
+  'BW': 'Botswana',
+  'BR': 'Brazil',
+  'BN': 'Brunei',
+  'BG': 'Bulgaria',
+  'BF': 'Burkina Faso',
+  'BI': 'Burundi',
+  'KH': 'Cambodia',
+  'CM': 'Cameroon',
+  'CA': 'Canada',
+  'CV': 'Cape Verde',
+  'KY': 'Cayman Islands',
+  'CF': 'Central African Republic',
+  'TD': 'Chad',
+  'CL': 'Chile',
+  'CN': 'China',
+  'CO': 'Colombia',
+  'KM': 'Comoros',
+  'CG': 'Congo',
+  'CR': 'Costa Rica',
+  'CI': 'Cote d\'Ivoire',
+  'HR': 'Croatia',
+  'CU': 'Cuba',
+  'CY': 'Cyprus',
+  'CZ': 'Czech Republic',
+  'DK': 'Denmark',
+  'DJ': 'Djibouti',
+  'DM': 'Dominica',
+  'DO': 'Dominican Republic',
+  'EC': 'Ecuador',
+  'EG': 'Egypt',
+  'SV': 'El Salvador',
+  'GQ': 'Equatorial Guinea',
+  'ER': 'Eritrea',
+  'EE': 'Estonia',
+  'ET': 'Ethiopia',
+  'FJ': 'Fiji',
+  'FI': 'Finland',
+  'FR': 'France',
+  'GA': 'Gabon',
+  'GM': 'Gambia',
+  'GE': 'Georgia',
+  'DE': 'Germany',
+  'GH': 'Ghana',
+  'GR': 'Greece',
+  'GL': 'Greenland',
+  'GD': 'Grenada',
+  'GU': 'Guam',
+  'GT': 'Guatemala',
+  'GN': 'Guinea',
+  'GW': 'Guinea-Bissau',
+  'GY': 'Guyana',
+  'HT': 'Haiti',
+  'HN': 'Honduras',
+  'HU': 'Hungary',
+  'IS': 'Iceland',
+  'IN': 'India',
+  'ID': 'Indonesia',
+  'IR': 'Iran',
+  'IQ': 'Iraq',
+  'IE': 'Ireland',
+  'IL': 'Israel',
+  'IT': 'Italy',
+  'JM': 'Jamaica',
+  'JP': 'Japan',
+  'JO': 'Jordan',
+  'KZ': 'Kazakhstan',
+  'KE': 'Kenya',
+  'KI': 'Kiribati',
+  'KR': 'Korea, Republic of',
+  'KW': 'Kuwait',
+  'KG': 'Kyrgyzstan',
+  'LA': 'Lao People\'s Democratic Republic',
+  'LV': 'Latvia',
+  'LB': 'Lebanon',
+  'LS': 'Lesotho',
+  'LR': 'Liberia',
+  'LY': 'Libya',
+  'LI': 'Liechtenstein',
+  'LT': 'Lithuania',
+  'LU': 'Luxembourg',
+  'MO': 'Macau',
+  'MK': 'Macedonia',
+  'MG': 'Madagascar',
+  'MW': 'Malawi',
+  'MY': 'Malaysia',
+  'MV': 'Maldives',
+  'ML': 'Mali',
+  'MT': 'Malta',
+  'MH': 'Marshall Islands',
+  'MR': 'Mauritania',
+  'MU': 'Mauritius',
+  'MX': 'Mexico',
+  'FM': 'Micronesia',
+  'MD': 'Moldova',
+  'MC': 'Monaco',
+  'MN': 'Mongolia',
+  'ME': 'Montenegro',
+  'MA': 'Morocco',
+  'MZ': 'Mozambique',
+  'MM': 'Myanmar',
+  'NA': 'Namibia',
+  'NR': 'Nauru',
+  'NP': 'Nepal',
+  'NL': 'Netherlands',
+  'NZ': 'New Zealand',
+  'NI': 'Nicaragua',
+  'NE': 'Niger',
+  'NG': 'Nigeria',
+  'NO': 'Norway',
+  'OM': 'Oman',
+  'PK': 'Pakistan',
+  'PW': 'Palau',
+  'PA': 'Panama',
+  'PG': 'Papua New Guinea',
+  'PY': 'Paraguay',
+  'PE': 'Peru',
+  'PH': 'Philippines',
+  'PL': 'Poland',
+  'PT': 'Portugal',
+  'QA': 'Qatar',
+  'RO': 'Romania',
+  'RU': 'Russian Federation',
+  'RW': 'Rwanda',
+  'WS': 'Samoa',
+  'SA': 'Saudi Arabia',
+  'SN': 'Senegal',
+  'RS': 'Serbia',
+  'SC': 'Seychelles',
+  'SL': 'Sierra Leone',
+  'SG': 'Singapore',
+  'SK': 'Slovakia',
+  'SI': 'Slovenia',
+  'SO': 'Somalia',
+  'ZA': 'South Africa',
+  'ES': 'Spain',
+  'LK': 'Sri Lanka',
+  'SD': 'Sudan',
+  'SR': 'Suriname',
+  'SE': 'Sweden',
+  'CH': 'Switzerland',
+  'SY': 'Syrian Arab Republic',
+  'TW': 'Taiwan',
+  'TJ': 'Tajikistan',
+  'TZ': 'Tanzania',
+  'TH': 'Thailand',
+  'TL': 'Timor-Leste',
+  'TG': 'Togo',
+  'TO': 'Tonga',
+  'TT': 'Trinidad and Tobago',
+  'TN': 'Tunisia',
+  'TR': 'Turkey',
+  'TM': 'Turkmenistan',
+  'TV': 'Tuvalu',
+  'UG': 'Uganda',
+  'UA': 'Ukraine',
+  'AE': 'United Arab Emirates',
+  'GB': 'United Kingdom',
+  'US': 'United States',
+  'UY': 'Uruguay',
+  'UZ': 'Uzbekistan',
+  'VU': 'Vanuatu',
+  'VE': 'Venezuela',
+  'VN': 'Viet Nam',
+  'YE': 'Yemen',
+  'ZM': 'Zambia',
+  'ZW': 'Zimbabwe'
+};
 
+// Function to get channel details
 const getChannelDetails = async (channelId) => {
   try {
     const response = await axios.get('https://www.googleapis.com/youtube/v3/channels', {
@@ -53,22 +250,27 @@ const getChannelDetails = async (channelId) => {
     });
 
     const channel = response.data.items[0];
+    const locationCode = channel.snippet.country || 'Unknown';
+    const location = countryMapping[locationCode] || locationCode; // Convert country code to full name
+
     return {
       subscriberCount: channel.statistics.subscriberCount || 'N/A',
       videoCount: channel.statistics.videoCount || 'N/A',
-      channelAge: new Date().getFullYear() - new Date(channel.snippet.publishedAt).getFullYear() // Channel age calculation
+      channelAge: new Date().getFullYear() - new Date(channel.snippet.publishedAt).getFullYear(),
+      location: location // Use full country name if available
     };
   } catch (error) {
     console.error(`Error fetching channel details for channel ${channelId}:`, error.response?.data || error.message);
     return {
       subscriberCount: 'N/A',
       videoCount: 'N/A',
-      channelAge: 'N/A'
+      channelAge: 'N/A',
+      location: 'Unknown'
     };
   }
 };
 
-// Function to convert ISO 8601 duration (PT3M7S) to seconds with error handling
+// Function to convert ISO 8601 duration (PT3M7S) to seconds
 const convertDurationToSeconds = (duration) => {
   if (!duration || typeof duration !== 'string') {
     return 0;
@@ -85,20 +287,21 @@ const convertDurationToSeconds = (duration) => {
   return (hours * 3600) + (minutes * 60) + seconds;
 };
 
+// Format the upload date
 const formatDate = (dateString) => {
   const date = new Date(dateString);
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // Add leading zero if needed
+  const month = String(date.getMonth() + 1).padStart(2, '0');
   return `${year}-${month}`;
 };
 
-const getTopSportsVideos = async (countryCode = 'US') => { // Make country code dynamic
+// Fetch top videos globally without country filtering
+const getTopFoodBloggingVideos = async () => {
   let videos = [];
   let nextPageToken = '';
-  
+
   try {
     while (videos.length < TOTAL_RESULTS) {
-      // Search for videos related to 'football' with country filtering
       const searchResponse = await axios.get('https://www.googleapis.com/youtube/v3/search', {
         params: {
           part: 'snippet',
@@ -106,7 +309,6 @@ const getTopSportsVideos = async (countryCode = 'US') => { // Make country code 
           type: 'video',
           order: 'viewCount', // Order by view count
           maxResults: MAX_RESULTS,
-          regionCode: countryCode, // Use the dynamic country code
           pageToken: nextPageToken,
           key: API_KEY
         }
@@ -116,10 +318,9 @@ const getTopSportsVideos = async (countryCode = 'US') => { // Make country code 
       nextPageToken = searchResponse.data.nextPageToken;
 
       if (videoIds.length === 0) {
-        break; // No more videos available
+        break;
       }
 
-      // Get details of the videos
       const videosResponse = await axios.get('https://www.googleapis.com/youtube/v3/videos', {
         params: {
           part: 'snippet,statistics,contentDetails',
@@ -130,48 +331,44 @@ const getTopSportsVideos = async (countryCode = 'US') => { // Make country code 
 
       const videosData = await Promise.all(videosResponse.data.items.map(async (video) => {
         try {
-          const { subscriberCount, videoCount, channelAge } = await getChannelDetails(video.snippet.channelId);
+          const { subscriberCount, videoCount, channelAge, location } = await getChannelDetails(video.snippet.channelId);
 
           return {
             title: video.snippet.title,
             tags: video.snippet.tags || ["None"],
-            category: categoryMapping[video.snippet.categoryId] || 'Unknown', // Convert category ID to category name
+            category: categoryMapping[video.snippet.categoryId] || 'Unknown',
             viewCount: video.statistics.viewCount,
             likeCount: video.statistics.likeCount,
             commentCount: video.statistics.commentCount,
-            uploadDate: formatDate(video.snippet.publishedAt), // Format the date
-            duration: convertDurationToSeconds(video.contentDetails.duration), // Convert duration to seconds
+            uploadDate: formatDate(video.snippet.publishedAt),
+            duration: convertDurationToSeconds(video.contentDetails.duration),
             channelName: video.snippet.channelTitle,
             subscriberCount: subscriberCount,
-            videoCount: videoCount, // Total number of videos on the channel
-            channelAge: channelAge, // Channel age
+            videoCount: videoCount,
+            channelAge: channelAge,
             url: `https://www.youtube.com/watch?v=${video.id}`,
-            thumbnailUrl: video.snippet.thumbnails?.high?.url || 'N/A', // Thumbnail URL
-            country: countryCode // Country filter used in the API call
+            thumbnailUrl: video.snippet.thumbnails?.high?.url || 'N/A',
+            country: location // Full country name
           };
         } catch (error) {
           console.error(`Error processing video ${video.id}:`, error.response?.data || error.message);
-          return null; // Return null for errors
+          return null;
         }
       }));
 
-      // Filter out any null values resulting from errors
       videos = videos.concat(videosData.filter(video => video !== null));
 
       if (!nextPageToken || videos.length >= TOTAL_RESULTS) {
-        break; // Stop if there are no more pages or we've reached the desired number of videos
+        break;
       }
     }
 
-    // Trim the results to the desired number if more than needed
     const topVideos = videos.slice(0, TOTAL_RESULTS);
 
-    // Convert the results to an Excel file
     const ws = XLSX.utils.json_to_sheet(topVideos);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Top Sports Videos');
+    XLSX.utils.book_append_sheet(wb, ws, 'Top Food Blogging Videos');
 
-    // Save the Excel file
     XLSX.writeFile(wb, 'topFoodBloggingVideos.xlsx');
     console.log('Data saved to topFoodBloggingVideos.xlsx');
 
@@ -181,5 +378,5 @@ const getTopSportsVideos = async (countryCode = 'US') => { // Make country code 
 };
 
 // Example usage:
-getTopSportsVideos('IN'); // Fetch videos for India
-getTopSportsVideos('GB'); // Fetch videos for the UK
+getTopFoodBloggingVideos();
+
