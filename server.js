@@ -7,7 +7,6 @@ const MAX_RESULTS = 50; // Maximum results per request
 const TOTAL_RESULTS = 100; // Total results desired
 const COUNTRY_CODE = 'US'; // Specify the country (e.g., 'US' for the United States)
 
-// Category mapping (You'd need to populate this with your own category mappings)
 const categoryMapping = {
   '1': 'Film & Animation',
   '2': 'Autos & Vehicles',
@@ -45,16 +44,23 @@ const getChannelDetails = async (channelId) => {
   }
 };
 
-// Function to convert ISO 8601 duration (PT3M7S) to seconds
+// Function to convert ISO 8601 duration (PT3M7S) to seconds with error handling
 const convertDurationToSeconds = (duration) => {
+  if (!duration || typeof duration !== 'string') {
+    return 0;
+  }
+
   const matches = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
-  const hours = (parseInt(matches[1]) || 0);
-  const minutes = (parseInt(matches[2]) || 0);
-  const seconds = (parseInt(matches[3]) || 0);
+  if (!matches) {
+    return 0;
+  }
+
+  const hours = parseInt(matches[1], 10) || 0;
+  const minutes = parseInt(matches[2], 10) || 0;
+  const seconds = parseInt(matches[3], 10) || 0;
   return (hours * 3600) + (minutes * 60) + seconds;
 };
 
-// Function to format date as YYYY-MM
 const formatDate = (dateString) => {
   const date = new Date(dateString);
   const year = date.getFullYear();
@@ -98,7 +104,6 @@ const getTopSportsVideos = async () => {
         }
       });
 
-      // Extract video data with the added fields for category name, formatted upload date, duration in seconds
       const videosData = await Promise.all(videosResponse.data.items.map(async (video) => {
         try {
           const { subscriberCount, videoCount, channelAge } = await getChannelDetails(video.snippet.channelId);
