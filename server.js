@@ -2,10 +2,9 @@ const axios = require('axios');
 const XLSX = require('xlsx'); // Import the xlsx library
 
 const API_KEY = 'AIzaSyCbPFdH3vMMQtdIE0SEFgcBjdoZRkzsMlk';
-const SEARCH_QUERY = 'football';
+const SEARCH_QUERY = 'food blogging';
 const MAX_RESULTS = 50; // Maximum results per request
 const TOTAL_RESULTS = 100; // Total results desired
-const COUNTRY_CODE = 'US'; // Specify the country (e.g., 'US' for the United States)
 
 const categoryMapping = {
   '1': 'Film & Animation',
@@ -13,10 +12,35 @@ const categoryMapping = {
   '10': 'Music',
   '15': 'Pets & Animals',
   '17': 'Sports',
+  '18': 'Short Movies',
+  '19': 'Travel & Events',
   '20': 'Gaming',
+  '21': 'Videoblogging',
   '22': 'People & Blogs',
-  // Add more categories as needed
+  '23': 'Comedy',
+  '24': 'Entertainment',
+  '25': 'News & Politics',
+  '26': 'Howto & Style',
+  '27': 'Education',
+  '28': 'Science & Technology',
+  '29': 'Nonprofits & Activism',
+  '30': 'Movies',
+  '31': 'Anime/Animation',
+  '32': 'Action/Adventure',
+  '33': 'Classics',
+  '34': 'Comedy',
+  '35': 'Documentary',
+  '36': 'Drama',
+  '37': 'Family',
+  '38': 'Foreign',
+  '39': 'Horror',
+  '40': 'Sci-Fi/Fantasy',
+  '41': 'Thriller',
+  '42': 'Shorts',
+  '43': 'Shows',
+  '44': 'Trailers'
 };
+
 
 const getChannelDetails = async (channelId) => {
   try {
@@ -68,7 +92,7 @@ const formatDate = (dateString) => {
   return `${year}-${month}`;
 };
 
-const getTopSportsVideos = async () => {
+const getTopSportsVideos = async (countryCode = 'US') => { // Make country code dynamic
   let videos = [];
   let nextPageToken = '';
   
@@ -82,7 +106,7 @@ const getTopSportsVideos = async () => {
           type: 'video',
           order: 'viewCount', // Order by view count
           maxResults: MAX_RESULTS,
-          regionCode: COUNTRY_CODE, // Add country filter here
+          regionCode: countryCode, // Use the dynamic country code
           pageToken: nextPageToken,
           key: API_KEY
         }
@@ -110,25 +134,20 @@ const getTopSportsVideos = async () => {
 
           return {
             title: video.snippet.title,
-            description: video.snippet.description,
-            tags: video.snippet.tags || [],
+            tags: video.snippet.tags || ["None"],
             category: categoryMapping[video.snippet.categoryId] || 'Unknown', // Convert category ID to category name
             viewCount: video.statistics.viewCount,
             likeCount: video.statistics.likeCount,
-            dislikeCount: video.statistics.dislikeCount,
             commentCount: video.statistics.commentCount,
-            shareCount: video.statistics.shareCount || 0, // Share count not available in this API call
             uploadDate: formatDate(video.snippet.publishedAt), // Format the date
             duration: convertDurationToSeconds(video.contentDetails.duration), // Convert duration to seconds
             channelName: video.snippet.channelTitle,
-            channelId: video.snippet.channelId,
             subscriberCount: subscriberCount,
             videoCount: videoCount, // Total number of videos on the channel
             channelAge: channelAge, // Channel age
-            contentType: 'Video', // Fixed content type
             url: `https://www.youtube.com/watch?v=${video.id}`,
             thumbnailUrl: video.snippet.thumbnails?.high?.url || 'N/A', // Thumbnail URL
-            country: COUNTRY_CODE // Country filter used in the API call
+            country: countryCode // Country filter used in the API call
           };
         } catch (error) {
           console.error(`Error processing video ${video.id}:`, error.response?.data || error.message);
@@ -153,12 +172,14 @@ const getTopSportsVideos = async () => {
     XLSX.utils.book_append_sheet(wb, ws, 'Top Sports Videos');
 
     // Save the Excel file
-    XLSX.writeFile(wb, 'topfootballVideos.xlsx');
-    console.log('Data saved to topfootballVideos.xlsx');
+    XLSX.writeFile(wb, 'topFoodBloggingVideos.xlsx');
+    console.log('Data saved to topFoodBloggingVideos.xlsx');
 
   } catch (error) {
     console.error('Error fetching YouTube data:', error.response?.data || error.message);
   }
 };
 
-getTopSportsVideos();
+// Example usage:
+getTopSportsVideos('IN'); // Fetch videos for India
+getTopSportsVideos('GB'); // Fetch videos for the UK
