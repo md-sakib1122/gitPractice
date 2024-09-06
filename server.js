@@ -6,6 +6,7 @@ const API_KEY = 'AIzaSyCbPFdH3vMMQtdIE0SEFgcBjdoZRkzsMlk';
 const SEARCH_QUERY = 'football';
 const MAX_RESULTS = 50; // Maximum results per request
 const TOTAL_RESULTS = 100; // Total results desired
+const COUNTRY_CODE = 'US'; // Specify the country (e.g., 'US' for the United States)
 
 const getChannelSubscriberCount = async (channelId) => {
   try {
@@ -29,7 +30,7 @@ const getTopSportsVideos = async () => {
   
   try {
     while (videos.length < TOTAL_RESULTS) {
-      // Search for videos related to 'sports'
+      // Search for videos related to 'football' with country filtering
       const searchResponse = await axios.get('https://www.googleapis.com/youtube/v3/search', {
         params: {
           part: 'snippet',
@@ -37,6 +38,7 @@ const getTopSportsVideos = async () => {
           type: 'video',
           order: 'viewCount', // Order by view count
           maxResults: MAX_RESULTS,
+          regionCode: COUNTRY_CODE, // Add country filter here
           pageToken: nextPageToken,
           key: API_KEY
         }
@@ -58,7 +60,7 @@ const getTopSportsVideos = async () => {
         }
       });
 
-      // Extract video data with proper error handling
+      // Extract video data with the added fields for country and thumbnail
       const videosData = await Promise.all(videosResponse.data.items.map(async (video) => {
         try {
           const subscriberCount = await getChannelSubscriberCount(video.snippet.channelId);
@@ -77,7 +79,9 @@ const getTopSportsVideos = async () => {
             channelName: video.snippet.channelTitle,
             channelId: video.snippet.channelId,
             subscriberCount: subscriberCount,
-            url: `https://www.youtube.com/watch?v=${video.id}`
+            url: `https://www.youtube.com/watch?v=${video.id}`,
+            thumbnailUrl: video.snippet.thumbnails?.high?.url || 'N/A', // Thumbnail URL
+            country: COUNTRY_CODE // Country filter used in the API call
           };
         } catch (error) {
           console.error(`Error processing video ${video.id}:`, error.response?.data || error.message);
@@ -103,11 +107,11 @@ const getTopSportsVideos = async () => {
 
     // Save the Excel file
     XLSX.writeFile(wb, 'topfootballVideos.xlsx');
-    console.log('Data saved to topSportsVideos.xlsx');
+    console.log('Data saved to topfootballVideos.xlsx');
 
   } catch (error) {
     console.error('Error fetching YouTube data:', error.response?.data || error.message);
   }
-}
+};
 
 getTopSportsVideos();
