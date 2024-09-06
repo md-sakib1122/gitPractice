@@ -1,5 +1,4 @@
 const axios = require('axios');
-const fs = require('fs');
 const XLSX = require('xlsx'); // Import the xlsx library
 
 const API_KEY = 'AIzaSyCbPFdH3vMMQtdIE0SEFgcBjdoZRkzsMlk';
@@ -8,20 +7,59 @@ const MAX_RESULTS = 50; // Maximum results per request
 const TOTAL_RESULTS = 100; // Total results desired
 const COUNTRY_CODE = 'US'; // Specify the country (e.g., 'US' for the United States)
 
-const getChannelSubscriberCount = async (channelId) => {
+// Category mapping (You'd need to populate this with your own category mappings)
+const categoryMapping = {
+  '1': 'Film & Animation',
+  '2': 'Autos & Vehicles',
+  '10': 'Music',
+  '15': 'Pets & Animals',
+  '17': 'Sports',
+  '20': 'Gaming',
+  '22': 'People & Blogs',
+  // Add more categories as needed
+};
+
+const getChannelDetails = async (channelId) => {
   try {
     const response = await axios.get('https://www.googleapis.com/youtube/v3/channels', {
       params: {
-        part: 'statistics',
+        part: 'snippet,statistics',
         id: channelId,
         key: API_KEY
       }
     });
-    return response.data.items[0]?.statistics?.subscriberCount || 'N/A';
+
+    const channel = response.data.items[0];
+    return {
+      subscriberCount: channel.statistics.subscriberCount || 'N/A',
+      videoCount: channel.statistics.videoCount || 'N/A',
+      channelAge: new Date().getFullYear() - new Date(channel.snippet.publishedAt).getFullYear() // Channel age calculation
+    };
   } catch (error) {
-    console.error(`Error fetching subscriber count for channel ${channelId}:`, error.response?.data || error.message);
-    return 'N/A';
+    console.error(`Error fetching channel details for channel ${channelId}:`, error.response?.data || error.message);
+    return {
+      subscriberCount: 'N/A',
+      videoCount: 'N/A',
+      channelAge: 'N/A'
+    };
   }
+};
+
+// Function to convert ISO 8601 duration (PT3M7S) to seconds
+const convertDurationToSeconds = (duration) => {
+  const matches = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
+  const hours = (parseInt(matches[1]) || 0);
+  const minutes = (parseInt(matches[2]) || 0);
+  const seconds = (parseInt(matches[3]) || 0);
+  return (hours * 3600) + (minutes * 60) + seconds;
+};
+
+// Function to format date as YYYY-MM
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Add leading zero if needed
+  return `${year}-${month}`;
 };
 
 const getTopSportsVideos = async () => {
@@ -60,25 +98,29 @@ const getTopSportsVideos = async () => {
         }
       });
 
-      // Extract video data with the added fields for country and thumbnail
+      // Extract video data with the added fields for category name, formatted upload date, duration in seconds
       const videosData = await Promise.all(videosResponse.data.items.map(async (video) => {
         try {
-          const subscriberCount = await getChannelSubscriberCount(video.snippet.channelId);
+          const { subscriberCount, videoCount, channelAge } = await getChannelDetails(video.snippet.channelId);
+
           return {
             title: video.snippet.title,
             description: video.snippet.description,
             tags: video.snippet.tags || [],
-            category: video.snippet.categoryId,
+            category: categoryMapping[video.snippet.categoryId] || 'Unknown', // Convert category ID to category name
             viewCount: video.statistics.viewCount,
             likeCount: video.statistics.likeCount,
             dislikeCount: video.statistics.dislikeCount,
             commentCount: video.statistics.commentCount,
             shareCount: video.statistics.shareCount || 0, // Share count not available in this API call
-            uploadDate: video.snippet.publishedAt,
-            duration: video.contentDetails.duration,
+            uploadDate: formatDate(video.snippet.publishedAt), // Format the date
+            duration: convertDurationToSeconds(video.contentDetails.duration), // Convert duration to seconds
             channelName: video.snippet.channelTitle,
             channelId: video.snippet.channelId,
             subscriberCount: subscriberCount,
+            videoCount: videoCount, // Total number of videos on the channel
+            channelAge: channelAge, // Channel age
+            contentType: 'Video', // Fixed content type
             url: `https://www.youtube.com/watch?v=${video.id}`,
             thumbnailUrl: video.snippet.thumbnails?.high?.url || 'N/A', // Thumbnail URL
             country: COUNTRY_CODE // Country filter used in the API call
